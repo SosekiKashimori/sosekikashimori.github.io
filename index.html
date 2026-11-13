@@ -131,7 +131,14 @@ section { padding: 64px 0; }
 .sec-head .note { color: var(--muted); font-size: 14.5px; }
 
 /* Work */
-.work { display: grid; grid-template-columns: 1.15fr 1fr; gap: 20px; }
+.work { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; padding: 6px 2px 18px; margin: -6px -2px 0; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.work > .proj { flex: 0 0 min(440px, 84%); scroll-snap-align: start; }
+.work::-webkit-scrollbar { height: 6px; } .work::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+.proj .preview video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; display: block; }
+.scroll-btns { display: flex; align-items: center; gap: 8px; }
+.scroll-btns button { width: 40px; height: 40px; border-radius: 50%; border: var(--bw) solid var(--line); background: var(--panel); color: var(--ink); font: 500 17px var(--body); cursor: pointer; transition: border-color .2s, opacity .2s; }
+.scroll-btns button:hover:not(:disabled) { border-color: var(--accent); }
+.scroll-btns button:disabled { opacity: .35; cursor: default; }
 .proj { position: relative; display: grid; grid-template-rows: auto 1fr; border: var(--bw) solid var(--line); border-radius: var(--radius); background: var(--panel); overflow: hidden; text-decoration: none; transition: transform .25s, border-color .25s, box-shadow .25s; }
 a.proj:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 24px 50px -30px color-mix(in srgb, var(--accent) 60%, transparent); }
 .preview { height: 220px; position: relative; overflow: hidden; border-bottom: 1px solid var(--line); background: var(--sunk); }
@@ -271,9 +278,9 @@ footer.wrap { padding: 32px 24px calc(64px + env(safe-area-inset-bottom)); displ
     <div class="wrap">
       <div class="sec-head rv">
         <div class="l"><span class="eyebrow">Selected work</span><h2>Projects</h2></div>
-        <span class="note">More on the way</span>
+        <div class="scroll-btns"><span class="note" style="margin-right:6px">Scroll for more</span><button type="button" id="work-prev" aria-label="Previous project">←</button><button type="button" id="work-next" aria-label="Next project">→</button></div>
       </div>
-      <div class="work">
+      <div class="work" id="work-row">
         <a class="proj rv" id="p-amxl" href="amxl.html">
           <div class="preview" aria-hidden="true">
             <div class="rows">
@@ -304,6 +311,18 @@ footer.wrap { padding: 32px 24px calc(64px + env(safe-area-inset-bottom)); displ
             <div class="pmeta"><span class="badge wip">Live beta</span><span>Personal project · 2026</span></div>
             <h3>PitchLane</h3>
             <p>Upload any song and get a karaoke-room pitch guide: the voice separated, every note drawn as a bar, and lyrics synced word by word, all in the browser.</p>
+            <span class="more">Read the case study <i>→</i></span>
+          </div>
+        </a>
+        <a class="proj rv" id="p-robot" href="robot.html">
+          <div class="preview" aria-hidden="true">
+            <video src="robot-line.mp4" poster="robot-line.jpg" autoplay muted loop playsinline preload="metadata"></video>
+          </div>
+          <div class="pbody">
+            <div class="pmeta"><span class="badge done">Completed</span><span>UBC · COGS 300 · 2025</span></div>
+            <h3>Line-following robot</h3>
+            <p>An Arduino robot that follows a tape line, tracks walls and avoids obstacles on its own. When shadows kept fooling its light sensor, switching to infrared sensors fixed it.</p>
+            <div class="pstats"><div><b>100+</b><span>test runs</span></div><div><b>3</b><span>tasks</span></div><div><b>Team of 3</b><span>course project</span></div></div>
             <span class="more">Read the case study <i>→</i></span>
           </div>
         </a>
@@ -513,6 +532,17 @@ footer.wrap { padding: 32px 24px calc(64px + env(safe-area-inset-bottom)); displ
   setStyle(saved);
   requestAnimationFrame(frame);
 })();
+
+  // Project row: arrow buttons scroll one card at a time
+  (function () {
+    const row = document.getElementById('work-row'), prev = document.getElementById('work-prev'), next = document.getElementById('work-next');
+    if (!row || !prev || !next) return;
+    const stepW = () => { const c = row.querySelector('.proj'); return c ? c.getBoundingClientRect().width + 20 : 400; };
+    const upd = () => { prev.disabled = row.scrollLeft < 4; next.disabled = row.scrollLeft + row.clientWidth >= row.scrollWidth - 4; };
+    prev.addEventListener('click', () => row.scrollBy({ left: -stepW() }));
+    next.addEventListener('click', () => row.scrollBy({ left: stepW() }));
+    row.addEventListener('scroll', upd, { passive: true }); addEventListener('resize', upd); upd();
+  })();
 </script>
 </body>
 </html>
