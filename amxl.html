@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AMXL Case Study Animated</title>
+<title>AMXL Program Management Case Study</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&family=Courier+Prime:wght@400;700&family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -94,7 +94,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 :root[data-style="premium"] .cell { border-radius: 6px; }
 :root[data-style="premium"] .cell.cur { outline-width: 1.5px; }
 :root[data-style="premium"] .doc { box-shadow: 0 20px 40px -24px rgba(60,45,25,.45); border-color: var(--soft); }
-:root[data-style="premium"] .todo { border-style: dashed; border-color: var(--soft); color: var(--muted); font-style: italic; }
+:root[data-style="premium"] .learned { font: 400 clamp(22px, 2.4vw, 26px)/1.25 var(--display); color: var(--ink); letter-spacing: -.01em; }
+.todo { border-style: dashed; border-color: var(--soft); color: var(--muted); font-style: italic; }
 :root[data-style="premium"] .picker { background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); }
 .trk { display: none; gap: 18px; font: 11px var(--mono); letter-spacing: .12em; color: var(--muted); margin-top: -6px; }
 
@@ -642,7 +643,8 @@ footer { font: 11.5px var(--mono); color: var(--muted); display: flex; flex-wrap
           <p>Gathered requirements with each team and set clear data guidelines for every PM, since the reports are only as good as what goes into Asana.</p></div>
         <div class="bc card"><span class="eyebrow">Reliability</span><h3>Never silently wrong</h3><p>Data is fetched in parallel and retried automatically, so a failed read is never reported as a healthy project.</p></div>
         <div class="bc card"><span class="eyebrow">Handover</span><h3>Runs after I left</h3><p>Primary and backup owners, a team guide, SOPs and a maintenance guide for next year's reset. A new owner can take over in under 30 minutes.</p></div>
-        <div class="bc card"><span class="eyebrow">What I learned</span><p class="todo">Tony: one or two honest sentences here.</p></div>
+        <div class="bc card"><span class="eyebrow">What I learned</span><p class="learned">A system is only as good as the data people put into it.</p>
+          <p>Getting PMs to update Asana consistently mattered more than any automation I built.</p></div>
       </div>
     </div>
   </section>
