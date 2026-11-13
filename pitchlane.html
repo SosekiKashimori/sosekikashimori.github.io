@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PitchLane Case Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a karaoke-room screen at the top (the app's own purple and pink) fading into the portfolio's paper. One live pitch-guide demo, then the problem, the pipeline, features, how to try it, and what's next. Single theme by choice. */
+:root {
+  --bg: #efebe3; --panel: #fbfaf7; --sunk: #f5f2ec; --line: #d6d0c4; --ink: #1c1a17; --muted: #6f685e;
+  --accent: #b8336a; --accent2: #2a8fa6;
+  --k-bg: #120c2c; --k-pink: #ff4fa3; --k-cyan: #5ee7ff; --k-text: #f3f1ff; --k-dim: #b4afd9;
+  --display: "Instrument Serif", Georgia, serif; --body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+h1, h2 { font-family: var(--display); font-weight: 400; letter-spacing: -.015em; text-wrap: balance; margin: 0; }
+h2 { font-size: clamp(30px, 3.8vw, 44px); line-height: 1.05; }
+h3 { margin: 0; font-size: 17px; font-weight: 600; }
+p { margin: 0; }
+.eyebrow { font: 500 11.5px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.eyebrow::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-right: 9px; vertical-align: 1px; }
+.lede { color: var(--muted); max-width: 60ch; }
+mark { color: var(--ink); background: linear-gradient(100deg, transparent .2%, color-mix(in srgb, #e9b949 48%, transparent) .5% 99%, transparent 99.6%) no-repeat 0 62% / 100% 52%; padding: 0 .1em; }
+
+/* Top nav */
+nav.top { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, #0d0922 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid #2a2650; color: var(--k-text); }
+nav.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 56px; gap: 14px; }
+nav.top a { text-decoration: none; font-size: 14.5px; color: var(--k-dim); }
+nav.top a:hover { color: var(--k-text); }
+nav.top .back { display: inline-flex; align-items: center; gap: 8px; color: var(--k-text); font-weight: 600; }
+
+/* Hero: karaoke room fading into paper */
+.hero { color: var(--k-text); padding: 46px 0 170px;
+  background:
+    radial-gradient(55% 40% at 85% 30%, rgba(255,79,163,.28) 0%, rgba(255,79,163,0) 70%),
+    radial-gradient(50% 40% at 10% 40%, rgba(122,92,255,.32) 0%, rgba(122,92,255,0) 70%),
+    linear-gradient(180deg, #24195a 0%, #1a1240 40%, #150f33 56%, #3a2a4f 68%, #7d6672 78%, #b9a797 86%, #ddd3c4 93%, #efebe3 97%, #efebe3 100%); }
+.hero .wrap { display: grid; gap: 22px; }
+.hero .tag { font: 500 11.5px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--k-dim); }
+.hero .tag b { color: var(--k-pink); font-weight: 500; }
+.hero h1 { font-size: clamp(40px, 6.4vw, 78px); line-height: .98; max-width: 16ch; }
+.hero h1 em { font-style: italic; background: linear-gradient(90deg, var(--k-pink), var(--k-cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: .06em; }
+.hero .sub { color: var(--k-dim); max-width: 58ch; font-size: 18px; }
+.ctas { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 999px; border: 1px solid #3a3470; background: rgba(255,255,255,.06); color: var(--k-text); text-decoration: none; font-weight: 600; font-size: 15px; transition: transform .2s, box-shadow .2s; }
+.btn:hover { transform: translateY(-2px); }
+.btn.primary { border: 0; background: linear-gradient(90deg, var(--k-pink), #ff7a59); color: #fff; box-shadow: 0 10px 30px -12px rgba(255,79,163,.8); }
+
+/* Live demo screen */
+.screen { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid #3a3470; height: 360px;
+  background: radial-gradient(60% 50% at 85% 85%, rgba(255,79,163,.22), transparent 70%), radial-gradient(55% 45% at 10% 75%, rgba(122,92,255,.28), transparent 70%), radial-gradient(80% 60% at 50% 0%, #3a2a78 0%, transparent 70%), linear-gradient(180deg, #24195a 0%, #1a1240 55%, #120c2c 100%);
+  box-shadow: 0 40px 80px -40px rgba(10,5,30,.9); }
+#lane { position: absolute; left: 0; right: 0; top: 0; height: 58%; width: 100%; display: block; }
+.ribbon { position: absolute; top: 10px; left: -6px; padding: 4px 14px 4px 16px; font: 800 11px Outfit, sans-serif; letter-spacing: .08em; color: #fff; background: linear-gradient(90deg, #7a5cff, #b066ff); border-radius: 0 8px 8px 0; transform: skewX(-8deg); }
+.lyr { position: absolute; left: 6%; right: 6%; bottom: 8%; display: grid; gap: 8px; font: 800 clamp(22px, 3.4vw, 38px)/1.45 Outfit, sans-serif; letter-spacing: .01em; pointer-events: none; }
+.lyr .ln { position: relative; display: inline-block; white-space: nowrap; }
+.lyr .l2 { justify-self: end; }
+.lyr .base, .lyr .fill { -webkit-text-stroke: .12em var(--o); paint-order: stroke fill; }
+.lyr .base { --o: #1d1238; color: #fff; }
+.lyr .fill { --o: #fff; color: var(--k-pink); position: absolute; inset: 0; clip-path: inset(-60% calc(100% - var(--x, 0px)) -60% 0); }
+.demo-note { position: absolute; right: 12px; top: 10px; font: 500 11px var(--mono); letter-spacing: .08em; color: var(--k-dim); }
+
+section { padding: 56px 0; }
+.head { display: grid; gap: 10px; margin-bottom: 26px; }
+
+/* Numbers */
+.nums { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--panel); margin-top: -96px; position: relative; }
+.num { padding: 20px 22px; display: grid; gap: 4px; border-right: 1px solid var(--line); }
+.num:last-child { border-right: 0; }
+.num b { font: 400 clamp(28px, 3.4vw, 40px)/1.05 var(--display); }
+.num b em { font-style: normal; color: var(--accent); }
+.num span { color: var(--muted); font-size: 14px; line-height: 1.4; }
+
+/* Problem → solution */
+.ps { display: grid; grid-template-columns: 1fr 40px 1fr; align-items: stretch; }
+.side { border: 1px solid var(--line); border-radius: 12px; background: var(--panel); padding: 22px; display: grid; gap: 12px; align-content: start; }
+.side.after { border-color: var(--accent); box-shadow: 0 18px 40px -30px rgba(184,51,106,.5); }
+.side ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+.side li { display: grid; grid-template-columns: 18px 1fr; gap: 8px; }
+.side li::before { content: "—"; color: var(--muted); }
+.side.after li::before { content: "→"; color: var(--accent); }
+.mid { display: grid; place-items: center; color: var(--accent); font-size: 22px; }
+
+/* Pipeline */
+.pipe { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; counter-reset: s; }
+.step { position: relative; padding: 0 14px 0 0; display: grid; gap: 8px; align-content: start; }
+.step .dot { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font: 500 13px var(--mono); background: var(--panel); border: 1px solid var(--line); position: relative; z-index: 1; }
+.step:not(:last-child)::after { content: ""; position: absolute; top: 20px; left: 44px; right: 4px; height: 1px; background: repeating-linear-gradient(90deg, var(--muted) 0 3px, transparent 3px 7px); }
+.step p { color: var(--muted); font-size: 14.5px; line-height: 1.5; }
+.step small { font: 11.5px var(--mono); color: var(--accent2); }
+
+/* Features */
+.feats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.feat { border: 1px solid var(--line); border-radius: 12px; background: var(--panel); padding: 18px 20px; display: grid; gap: 6px; align-content: start; }
+.feat .k { font: 500 11px var(--mono); letter-spacing: .12em; color: var(--accent); text-transform: uppercase; }
+.feat p { color: var(--muted); font-size: 15px; }
+
+/* Try it */
+.try { display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; align-items: start; }
+.how { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; counter-reset: h; }
+.how li { counter-increment: h; display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; }
+.how li::before { content: counter(h); width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: var(--panel); display: grid; place-items: center; font: 500 13px var(--mono); }
+.how b { font-weight: 600; }
+.how span { color: var(--muted); }
+.trycard { border-radius: 14px; padding: 26px; display: grid; gap: 14px; color: var(--k-text); background: radial-gradient(60% 60% at 90% 10%, rgba(255,79,163,.35), transparent 70%), linear-gradient(160deg, #24195a, #120c2c); }
+.trycard p { color: var(--k-dim); font-size: 15px; }
+.trycard h3 { font: 400 30px/1.1 var(--display); }
+.note { font: 12px var(--mono); color: var(--k-dim); }
+
+/* Next */
+.next { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.nx { border-top: 2px solid var(--ink); padding-top: 14px; display: grid; gap: 6px; }
+.nx .st { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.nx.done .st { color: #3a6a4c; } .nx.now .st { color: var(--accent); }
+.nx p { color: var(--muted); font-size: 15px; }
+.credit { margin-top: 26px; color: var(--muted); font-size: 13.5px; max-width: 80ch; }
+
+footer.wrap { padding: 32px 24px calc(64px + env(safe-area-inset-bottom)); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font: 12px var(--mono); color: var(--muted); border-top: 1px solid var(--line); }
+
+.js .rv { opacity: 0; transform: translateY(16px); transition: opacity .7s ease, transform .7s ease; }
+.js .rv.in { opacity: 1; transform: none; }
+
+@media (max-width: 900px) {
+  .nums { grid-template-columns: 1fr 1fr; }
+  .num:nth-child(2) { border-right: 0; } .num:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  .ps, .try { grid-template-columns: 1fr; gap: 10px; }
+  .mid { transform: rotate(90deg); height: 22px; }
+  .pipe { grid-template-columns: 1fr; gap: 16px; }
+  .step { grid-template-columns: 40px 1fr; column-gap: 12px; padding: 0; }
+  .step .dot { grid-row: span 3; }
+  .step:not(:last-child)::after { display: none; }
+  .feats, .next { grid-template-columns: 1fr; }
+  .screen { height: 300px; }
+}
+@media (prefers-reduced-motion: reduce) { .js .rv { opacity: 1; transform: none; transition: none; } }
+</style>
+</head>
+<body>
+
+<nav class="top" aria-label="Main"><div class="wrap">
+  <a class="back" href="index.html">← Soseki Kashimori</a>
+  <a href="https://claude.ai/artifact/7sDFRcZDkg9qW3HqY5iwtv">Open PitchLane ↗</a>
+</div></nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag">Case study 02 · Personal project · <b>Live beta</b></span>
+    <h1>Karaoke pitch guides for <em>any</em> song.</h1>
+    <p class="sub">PitchLane turns a song you upload into a karaoke-room screen: it separates the singer's voice, draws every note as a bar to follow, and syncs the lyrics word by word. It all runs in your browser, and your songs never leave your device.</p>
+    <div class="ctas">
+      <a class="btn primary" href="https://claude.ai/artifact/7sDFRcZDkg9qW3HqY5iwtv">▶ Try PitchLane</a>
+      <a class="btn" href="#how">How it works</a>
+    </div>
+    <div class="screen" role="img" aria-label="Animated preview of PitchLane: pitch bars scroll past a playhead while the lyric 'Twinkle twinkle little star' fills with colour.">
+      <canvas id="lane" aria-hidden="true"></canvas>
+      <div class="ribbon">GUIDE MELODY ON</div>
+      <span class="demo-note">PREVIEW · PUBLIC-DOMAIN DEMO SONG</span>
+      <div class="lyr" aria-hidden="true">
+        <span class="ln l1" id="l1"><span class="base">Twin-kle twin-kle lit-tle star</span><span class="fill">Twin-kle twin-kle lit-tle star</span></span>
+        <span class="ln l2" id="l2"><span class="base">How I won-der what you are</span><span class="fill">How I won-der what you are</span></span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="nums rv">
+        <div class="num"><b><em>Any</em> song</b><span>Upload audio or video, no pre-made karaoke file needed</span></div>
+        <div class="num"><b>3 ways</b><span>to detect pitch, combined for accuracy</span></div>
+        <div class="num"><b>Word by word</b><span>lyric sync to the singer's real voice</span></div>
+        <div class="num"><b><em>0</em> uploads</b><span>everything runs on your device</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="head rv"><span class="eyebrow">Why I built it</span><h2>Japanese songs have pitch bars. Most songs don't.</h2></div>
+      <div class="ps rv">
+        <div class="side">
+          <span class="eyebrow" style="--accent:var(--muted)">The problem</span>
+          <ul>
+            <li><span>In Japanese karaoke rooms, every song shows the melody as pitch bars, so you know exactly which note to hit</span></li>
+            <li><span>Most Western songs on YouTube only have lyrics, with no pitch guide at all</span></li>
+            <li><span>Learning a song by ear means replaying the same line over and over</span></li>
+          </ul>
+        </div>
+        <div class="mid" aria-hidden="true">→</div>
+        <div class="side after">
+          <span class="eyebrow">What PitchLane does</span>
+          <ul>
+            <li><span>Creates the pitch-bar guide <mark>for songs that don't have one</mark></span></li>
+            <li><span>Lets you hear the full song, just the vocals, or just the backing track to sing over</span></li>
+            <li><span>Slows songs down without changing the key, so you can learn hard parts</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="head rv"><span class="eyebrow">How it works</span><h2>From an audio file to a karaoke screen</h2>
+        <p class="lede">Five steps run in the browser the first time you open a song. The AI models load once and are reused after that.</p></div>
+      <div class="pipe rv">
+        <div class="step"><span class="dot">1</span><h3>Upload</h3><p>Any audio or video file. It stays on the device.</p><small>Web Audio</small></div>
+        <div class="step"><span class="dot">2</span><h3>Separate the voice</h3><p>An AI model splits the singer from the music.</p><small>Spleeter 2-stem</small></div>
+        <div class="step"><span class="dot">3</span><h3>Find the pitch</h3><p>Three methods vote on each note, which handles harmonies and fast passages.</p><small>pYIN · harmonic salience · CREPE</small></div>
+        <div class="step"><span class="dot">4</span><h3>Draw the bars</h3><p>Pitch is cleaned up into note bars with start, end and note name.</p><small>Canvas</small></div>
+        <div class="step"><span class="dot">5</span><h3>Sync the lyrics</h3><p>A speech model listens to the vocals and times each word.</p><small>NeMo Conformer-CTC</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="head rv"><span class="eyebrow">Features</span><h2>Made for actually practising</h2></div>
+      <div class="feats rv">
+        <div class="feat"><span class="k">Hear it</span><h3>Full song, vocals or BGM</h3><p>Switch to the backing track only and sing the part yourself, karaoke style.</p></div>
+        <div class="feat"><span class="k">Learn it</span><h3>Guide melody and slow-down</h3><p>Play the bars as a piano melody, and slow to 0.75× or 0.5× without changing the key.</p></div>
+        <div class="feat"><span class="k">Fix it</span><h3>Edit the bars</h3><p>A piano-roll editor highlights bars the app is unsure about and suggests notes it missed.</p></div>
+        <div class="feat"><span class="k">Read it</span><h3>Lyrics, three ways</h3><p>Auto-sync to the voice, paste timed LRC lyrics, or tap along. Japanese furigana supported.</p></div>
+        <div class="feat"><span class="k">Keep it</span><h3>Export</h3><p>Download the vocals, the backing track (WAV), the pitch guide (MIDI) and the lyrics (LRC).</p></div>
+        <div class="feat"><span class="k">Private</span><h3>Nothing leaves your device</h3><p>No account and no server. Songs are processed and saved only in your own browser.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="try">
+    <div class="wrap">
+      <div class="try">
+        <div class="rv">
+          <div class="head"><span class="eyebrow">Try it yourself</span><h2>Four steps to sing along</h2></div>
+          <ol class="how">
+            <li><span><b>Open PitchLane</b> <span>and press <b>Try the demo</b> to see it with a built-in public-domain song.</span></span></li>
+            <li><span><b>Upload a song</b> <span>from your device (audio or video). The first time, the AI models take about a minute to download.</span></span></li>
+            <li><span><b>Add lyrics</b> <span>by pasting them into Lyrics, then press <b>Sync to the voice</b>.</span></span></li>
+            <li><span><b>Switch to BGM only</b> <span>and follow the bars as you sing.</span></span></li>
+          </ol>
+        </div>
+        <div class="trycard rv">
+          <span class="tag" style="font:500 11px var(--mono);letter-spacing:.14em;color:var(--k-dim)">LIVE BETA</span>
+          <h3>Try PitchLane now</h3>
+          <p>Works best in Chrome or Safari on a laptop. The demo song plays straight away; your own songs need a one-time model download of about 100 MB.</p>
+          <div><a class="btn primary" href="https://claude.ai/artifact/7sDFRcZDkg9qW3HqY5iwtv">▶ Open PitchLane</a></div>
+          <span class="note">Please only upload music you have the right to use.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="head rv"><span class="eyebrow">Where it's going</span><h2>What's next</h2></div>
+      <div class="next rv">
+        <div class="nx done"><span class="st">Done</span><h3>Bar editing</h3><p>Automatic bars can be wrong, so users can now fix them by hand, guided by the notes the app is unsure about.</p></div>
+        <div class="nx now"><span class="st">Next</span><h3>Live mic scoring</h3><p>Sing into the microphone and see how close you are to each bar, like the score screen in a karaoke room.</p></div>
+        <div class="nx"><span class="st">Exploring</span><h3>A public launch</h3><p>Testing accuracy across a 10-song set of pop, rock, ballads and J-pop before opening it up more widely.</p></div>
+      </div>
+      <p class="credit">Built with open-source models running on ONNX Runtime Web: Spleeter by Deezer (MIT), CREPE via torchcrepe (MIT) and NVIDIA NeMo Conformer-CTC packaged by sherpa-onnx (Apache-2.0).</p>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap"><span>Soseki Kashimori · Case study 02</span><a href="index.html" style="text-decoration:none">← Back to portfolio</a></footer>
+
+<script>
+(function () {
+  const root = document.documentElement, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  root.classList.add('js');
+  // Twinkle Twinkle (public domain): MIDI note per syllable, 2 lines
+  const melody = [[60,60,67,67,69,69,67],[65,65,64,64,62,62,60]];
+  const beat = .5, notes = []; let t = 0;
+  melody.forEach((line, li) => { line.forEach((m, i) => { const len = i === line.length - 1 ? beat * 2 : beat; notes.push({ t, len: len * .9, m, li, i }); t += len; }); t += beat * .5; });
+  const total = t + 1;
+  const cv = document.getElementById('lane'), g = cv.getContext('2d');
+  let W, H;
+  function size() { const d = devicePixelRatio || 1; W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; g.setTransform(d, 0, 0, d, 0, 0); }
+  size(); addEventListener('resize', size);
+  const l1 = document.getElementById('l1'), l2 = document.getElementById('l2');
+  function rr(x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+  function draw(now) {
+    const ct = reduce ? 3.2 : ((now / 1000) % total);
+    g.clearRect(0, 0, W, H);
+    const pps = W / 5.5, playX = W * .28, lo = 58, hi = 71, Y = m => 22 + (hi - m) / (hi - lo) * (H - 44);
+    g.strokeStyle = 'rgba(255,255,255,.07)'; g.lineWidth = 1;
+    for (let m = lo; m <= hi; m++) { g.beginPath(); g.moveTo(0, Y(m)); g.lineTo(W, Y(m)); g.stroke(); }
+    for (let rep = 0; rep < 2; rep++) for (const n of notes) {
+      const x = playX + (n.t + rep * total - ct) * pps, w = n.len * pps; if (x > W || x + w < 0) continue;
+      const y = Y(n.m) - 7, sung = x + w < playX, on = x <= playX && x + w >= playX;
+      const gr = g.createLinearGradient(x, 0, x + w, 0); gr.addColorStop(0, '#ff4fa3'); gr.addColorStop(1, '#b066ff');
+      g.fillStyle = sung ? 'rgba(255,255,255,.28)' : gr; rr(x, y, w - 2, 14, 7); g.fill();
+      if (on) { g.fillStyle = '#fff'; rr(x, y, playX - x, 14, 7); g.fill(); }
+    }
+    g.fillStyle = '#ff6fb8'; g.fillRect(playX - 1, 6, 2, H - 12);
+    const cur = notes.find(n => ct >= n.t && ct < n.t + n.len);
+    if (cur) { g.fillStyle = '#fff'; g.shadowColor = '#ff4fa3'; g.shadowBlur = 14; g.beginPath(); g.arc(playX, Y(cur.m), 6, 0, 7); g.fill(); g.shadowBlur = 0; }
+    // lyric wipe: each line fills in step with its notes
+    [l1, l2].forEach((el, li) => {
+      const ln = notes.filter(n => n.li === li), a = ln[0].t, b = ln[ln.length - 1].t + ln[ln.length - 1].len;
+      const p = ct <= a ? 0 : ct >= b ? 1 : (ct - a) / (b - a);
+      el.style.setProperty('--x', (el.offsetWidth * p) + 'px');
+    });
+    if (!reduce) requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  if ('IntersectionObserver' in window && !reduce) {
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .15 });
+    document.querySelectorAll('.rv').forEach(el => io.observe(el));
+  } else document.querySelectorAll('.rv').forEach(el => el.classList.add('in'));
+})();
+</script>
+</body>
+</html>

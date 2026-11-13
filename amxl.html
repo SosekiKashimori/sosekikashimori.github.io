@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en" data-style="premium">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AMXL Case Study Animated</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&family=Courier+Prime:wght@400;700&family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: the page shows the system working. Opening scene sorts 21 projects into 5 lanes; each tab is a small working demo. Two single-theme styles (shipping label, night ops) share every rule through tokens. */
+:root {
+  --bg: #e6d2ae; --panel: #fbf8f2; --sunk: #f1e9da; --line: #1d1d1b; --soft: #cbb994; --ink: #1d1d1b; --muted: #5d5246;
+  --signal: #c8321e; --cool: #1d1d1b; --on-signal: #fbf8f2;
+  --ok: #2e8a4f; --risk: #c98a12; --off: #c8321e; --hold: #2f6fb3; --done: #8a8172;
+  --display: "Archivo Black", "Arial Black", sans-serif; --body: "Archivo", Arial, sans-serif; --mono: "Courier Prime", "Courier New", monospace;
+  --bw: 2px; --radius: 4px; --caps: uppercase; --dw: 400;
+  color-scheme: light;
+}
+:root[data-style="night"] {
+  --bg: #070a14; --panel: #0e1324; --sunk: #0a0e1c; --line: #1f2742; --soft: #1f2742; --ink: #e9ecf5; --muted: #8c93ad;
+  --signal: #ffb547; --cool: #8fb3ff; --on-signal: #070a14;
+  --ok: #4fd18b; --risk: #ffb547; --off: #ff6b6b; --hold: #5aa8ff; --done: #9aa3bd;
+  --display: "Unbounded", "Arial Black", sans-serif; --body: "IBM Plex Sans", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --bw: 1px; --radius: 12px; --caps: none; --dw: 700;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16.5px; line-height: 1.6; -webkit-font-smoothing: antialiased; transition: background .3s, color .3s; }
+:focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+h1, h2 { font-family: var(--display); font-weight: var(--dw); text-transform: var(--caps); letter-spacing: -.01em; text-wrap: balance; margin: 0; }
+h2 { font-size: clamp(21px, 2.6vw, 27px); line-height: 1.2; }
+h3 { margin: 0; font-size: 16.5px; font-weight: 600; }
+p { margin: 0; }
+.eyebrow { font: 700 12px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--signal); }
+:root[data-style="night"] .eyebrow { color: var(--cool); font-weight: 500; }
+.muted { color: var(--muted); }
+.mono { font-family: var(--mono); }
+.card { background: var(--panel); border: var(--bw) solid var(--line); border-radius: var(--radius); }
+button { font: inherit; color: inherit; cursor: pointer; }
+.btn { font: 700 13px var(--mono); letter-spacing: .04em; text-transform: uppercase; padding: 9px 14px; border: var(--bw) solid var(--line); border-radius: var(--radius); background: var(--panel); color: var(--ink); transition: transform .15s, background .2s; }
+.btn:hover { transform: translateY(-1px); }
+.btn.primary { background: var(--signal); border-color: var(--signal); color: var(--on-signal); }
+:root[data-style="night"] .btn { text-transform: none; letter-spacing: 0; font: 500 14px var(--body); border-radius: 8px; }
+
+
+/* ---- Label refined: premium packaging ---- */
+:root[data-style="premium"] {
+  --bg: #efebe3; --panel: #fbfaf7; --sunk: #f5f2ec; --line: #2a2723; --soft: #d6d0c4; --ink: #1c1a17; --muted: #6f685e;
+  --signal: #b8442c; --cool: #1c1a17; --on-signal: #fbfaf7;
+  --ok: #4b7f5e; --risk: #c3913a; --off: #b8442c; --hold: #4d7397; --done: #a39c8f;
+  --display: "Instrument Serif", Georgia, serif; --body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --bw: 1px; --radius: 6px; --caps: none; --dw: 400;
+  color-scheme: light;
+}
+:root[data-style="premium"] body { font-size: 16px; }
+:root[data-style="premium"] .card { border-color: var(--soft); }
+:root[data-style="premium"] .hero-card { background: var(--panel); border-color: var(--soft); box-shadow: 0 1px 0 #ffffff inset, 0 30px 60px -34px rgba(60,45,25,.35), 0 2px 6px -2px rgba(60,45,25,.12); padding: 36px; }
+:root[data-style="premium"] .hero h1 { font-size: clamp(38px, 5.6vw, 66px); line-height: .98; letter-spacing: -.015em; }
+:root[data-style="premium"] .hero h1 em { font-style: italic; color: var(--signal); }
+:root[data-style="premium"] h2 { font-size: clamp(26px, 3vw, 34px); letter-spacing: -.01em; }
+:root[data-style="premium"] .eyebrow, :root[data-style="premium"] .k { font: 500 11px var(--mono); letter-spacing: .16em; color: var(--muted); }
+:root[data-style="premium"] .eyebrow::before, :root[data-style="premium"] .k::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--signal); margin-right: 8px; vertical-align: 1px; }
+:root[data-style="premium"] .barcode { height: 22px; max-width: 260px; opacity: .85; background: repeating-linear-gradient(90deg, var(--ink) 0 1px, transparent 1px 3px, var(--ink) 3px 5px, transparent 5px 6px, var(--ink) 6px 7px, transparent 7px 10px); }
+:root[data-style="premium"] .trk { display: flex; }
+:root[data-style="premium"] .hero, :root[data-style="premium"] section { border-bottom: 1px dashed var(--soft); }
+:root[data-style="premium"] .scene { background: var(--sunk); border: 1px dashed var(--soft); }
+:root[data-style="premium"] .nums { border-color: var(--soft); background: var(--panel); }
+:root[data-style="premium"] .num { border-color: var(--soft); padding: 20px 22px; }
+:root[data-style="premium"] .num b { font-size: clamp(30px, 3.6vw, 44px); letter-spacing: -.01em; }
+:root[data-style="premium"] .num:nth-child(3) b { color: var(--signal); }
+:root[data-style="premium"] .side { border-color: var(--soft); }
+:root[data-style="premium"] .side.after { border-color: var(--signal); box-shadow: 0 18px 40px -30px rgba(184,68,44,.5); }
+:root[data-style="premium"] .tab { font: 500 11.5px var(--mono); letter-spacing: .1em; border-color: var(--soft); border-radius: 999px; padding: 8px 14px; color: var(--muted); }
+:root[data-style="premium"] .tab:hover { color: var(--ink); border-color: var(--ink); }
+:root[data-style="premium"] .tab[aria-selected="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+:root[data-style="premium"] .tab .try { background: transparent; color: var(--signal); border: 1px solid currentColor; letter-spacing: .06em; }
+:root[data-style="premium"] .tab[aria-selected="true"] .try { color: #f0b9a8; }
+:root[data-style="premium"] .stage { border-color: var(--soft); box-shadow: 0 24px 50px -38px rgba(60,45,25,.35); }
+:root[data-style="premium"] .navrow { border-color: var(--soft); }
+:root[data-style="premium"] .navrow button, :root[data-style="premium"] .replay { border-color: var(--soft); border-radius: 999px; font: 500 11.5px var(--mono); letter-spacing: .06em; }
+:root[data-style="premium"] .btn { font: 500 12px var(--mono); letter-spacing: .08em; border-radius: 999px; border-color: var(--soft); padding: 9px 16px; }
+:root[data-style="premium"] .btn.primary { background: var(--ink); border-color: var(--ink); color: var(--panel); }
+:root[data-style="premium"] .box, :root[data-style="premium"] .std-b, :root[data-style="premium"] .mock, :root[data-style="premium"] .al, :root[data-style="premium"] .stp, :root[data-style="premium"] .code, :root[data-style="premium"] .mail { border-color: var(--soft); }
+:root[data-style="premium"] .box.eng, :root[data-style="premium"] .box.link:hover { border-color: var(--signal); }
+:root[data-style="premium"] .phases span, :root[data-style="premium"] .chipset span, :root[data-style="premium"] .teams span { border-color: var(--soft); }
+:root[data-style="premium"] .code tr.g td { color: var(--ink); font-weight: 500; }
+:root[data-style="premium"] .stp.on { background: var(--ink); color: var(--panel); }
+:root[data-style="premium"] .toast { border-color: var(--soft); box-shadow: 0 16px 30px -16px rgba(60,45,25,.4); }
+:root[data-style="premium"] .bot { border-radius: 50%; background: var(--ink); color: var(--panel); }
+:root[data-style="premium"] .score b { font-size: 60px; }
+:root[data-style="premium"] .cell { border-radius: 6px; }
+:root[data-style="premium"] .cell.cur { outline-width: 1.5px; }
+:root[data-style="premium"] .doc { box-shadow: 0 20px 40px -24px rgba(60,45,25,.45); border-color: var(--soft); }
+:root[data-style="premium"] .todo { border-style: dashed; border-color: var(--soft); color: var(--muted); font-style: italic; }
+:root[data-style="premium"] .picker { background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); }
+.trk { display: none; gap: 18px; font: 11px var(--mono); letter-spacing: .12em; color: var(--muted); margin-top: -6px; }
+
+/* Highlights */
+mark { background: none; color: inherit; }
+.num b em { font-style: normal; }
+:root:not([data-style]) mark, :root[data-style="premium"] mark {
+  color: var(--ink); padding: 0 .12em; margin: 0 -.06em; -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  background: linear-gradient(100deg, transparent 0 .2%, var(--hl) .5% 99%, transparent 99.6%) no-repeat 0 62% / 100% 52%;
+}
+:root:not([data-style]) { --hl: color-mix(in srgb, var(--signal) 28%, transparent); }
+:root[data-style="premium"] { --hl: color-mix(in srgb, #e9b949 48%, transparent); }
+:root[data-style="premium"] .num b em, :root:not([data-style]) .num b em { color: var(--signal); }
+:root[data-style="premium"] .num:nth-child(3) b { color: inherit; }
+:root[data-style="night"] mark { color: var(--signal); font-weight: 600; }
+:root[data-style="premium"] .side.after li b, :root[data-style="premium"] .txt p b { color: var(--ink); font-weight: 600; }
+/* Draw-on when seen: only when JS is running and motion is allowed */
+:root.hl-js:not([data-style="night"]) mark { background-size: 0% 52%; transition: background-size .9s cubic-bezier(.6,.1,.3,1); }
+:root.hl-js:not([data-style="night"]) mark.lit { background-size: 100% 52%; }
+:root.hl-js[data-style="night"] mark { color: var(--muted); transition: color .6s ease; }
+:root.hl-js[data-style="night"] mark.lit { color: var(--signal); }
+.backlink { font: 500 12.5px var(--mono); letter-spacing: .06em; color: var(--muted); text-decoration: none; justify-self: start; }
+.backlink:hover { color: var(--ink); }
+/* Picker */
+.picker { position: sticky; top: 0; z-index: 30; background: var(--bg); border-bottom: 1px solid var(--soft); }
+.picker .wrap { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding-top: 9px; padding-bottom: 9px; }
+.picker .lb { font: 500 11.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.picker button { font: 500 13px var(--body); padding: 6px 13px; border-radius: 999px; border: 1px solid var(--soft); background: var(--panel); color: var(--ink); }
+.picker button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* Hero */
+.hero { padding: 26px 0 34px; border-bottom: var(--bw) dashed var(--line); }
+:root[data-style="night"] .hero { border-bottom: 1px solid var(--line); }
+.hero-card { padding: 28px; display: grid; grid-template-columns: 1fr 1.05fr; gap: 28px; align-items: center; }
+:root[data-style="night"] .hero-card { background: transparent; border-color: transparent; padding: 18px 0; }
+.hero-text { display: grid; gap: 14px; align-content: start; }
+.hero h1 { font-size: clamp(30px, 4.6vw, 54px); line-height: 1.02; }
+.barcode { height: 30px; max-width: 320px; background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 7px, transparent 7px 9px, var(--ink) 9px 10px, transparent 10px 13px); }
+:root[data-style="night"] .barcode { display: none; }
+.hero h1 em { font-style: normal; }
+.lede { color: var(--muted); max-width: 52ch; }
+.role { display: flex; flex-wrap: wrap; gap: 4px 18px; font: 12.5px var(--mono); color: var(--muted); }
+.role b { color: var(--ink); font-weight: 700; }
+.scene { position: relative; border: var(--bw) dashed var(--line); border-radius: var(--radius); background: var(--sunk); height: 330px; overflow: hidden; }
+:root[data-style="night"] .scene { border-style: solid; }
+#scene { display: block; width: 100%; height: 100%; }
+.scene-top { position: absolute; top: 10px; left: 12px; right: 12px; display: flex; justify-content: space-between; font: 11.5px var(--mono); letter-spacing: .08em; color: var(--muted); pointer-events: none; }
+.replay { position: absolute; top: 6px; right: 10px; z-index: 2; font: 700 11.5px var(--mono); text-transform: uppercase; padding: 5px 9px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); color: var(--ink); }
+.toast { position: absolute; right: 12px; bottom: 12px; max-width: 250px; padding: 10px 12px; display: grid; gap: 4px; font-size: 13px; opacity: 0; transform: translateY(14px); transition: opacity .4s, transform .4s cubic-bezier(.2,.9,.3,1.3); pointer-events: none; }
+.toast.on { opacity: 1; transform: none; }
+.toast .who { display: flex; gap: 8px; align-items: center; font-weight: 600; }
+.bot { width: 22px; height: 22px; border-radius: 5px; background: var(--signal); color: var(--on-signal); display: grid; place-items: center; font: 700 10px var(--mono); flex: none; }
+.toast small { font: 11px var(--mono); color: var(--muted); font-weight: 400; }
+.dots { display: flex; flex-wrap: wrap; gap: 5px 14px; font: 12px var(--mono); }
+.dots > span { display: inline-flex; align-items: center; white-space: nowrap; }
+.dots .d, .code .d, .small .d { flex: none; }
+.code td:first-child { display: flex; align-items: center; }
+.d { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 0; }
+:root:not([data-style="night"]) .d { border-radius: 2px; }
+.d.ok { background: var(--ok); } .d.risk { background: var(--risk); } .d.off { background: var(--off); } .d.hold { background: var(--hold); } .d.done { background: var(--done); }
+
+.nums { margin-top: 22px; display: grid; grid-template-columns: repeat(4, 1fr); border: var(--bw) solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--panel); }
+.num { padding: 16px 18px; display: grid; gap: 2px; border-right: var(--bw) solid var(--line); }
+.num:last-child { border-right: 0; }
+:root[data-style="night"] .num { border-color: var(--line); }
+.num b { font-family: var(--display); font-weight: var(--dw); font-size: clamp(22px, 2.8vw, 32px); line-height: 1.05; white-space: nowrap; font-variant-numeric: tabular-nums; }
+:root[data-style="night"] .num b { color: var(--signal); }
+.num span { color: var(--muted); font-size: 13.5px; line-height: 1.35; }
+
+section { padding: 40px 0; border-bottom: var(--bw) dashed var(--line); }
+:root[data-style="night"] section { border-bottom: 1px solid var(--line); }
+.head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 8px 20px; margin-bottom: 18px; }
+.head .l { display: grid; gap: 6px; }
+
+/* Problem → built */
+.ps { display: grid; grid-template-columns: 1fr 40px 1fr; align-items: stretch; }
+.side { padding: 18px 20px; display: grid; gap: 10px; align-content: start; }
+.side.after { border-color: var(--signal); }
+.side ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; font-size: 15.5px; }
+.side li { display: grid; grid-template-columns: 18px 1fr; gap: 8px; }
+.side li::before { content: "—"; color: var(--muted); }
+.side.after li::before { content: "→"; color: var(--signal); }
+.mid { display: grid; place-items: center; color: var(--signal); font-size: 22px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex: none; font: 700 13px var(--mono); text-transform: uppercase; letter-spacing: .04em; color: var(--ink); background: transparent; border: var(--bw) solid var(--line); border-radius: var(--radius); padding: 8px 13px; display: inline-flex; gap: 8px; align-items: center; transition: background .2s, color .2s; }
+.tab .i { opacity: .6; font-weight: 400; }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.tab .try { font-size: 10px; padding: 1px 5px; border-radius: 3px; background: var(--signal); color: var(--on-signal); }
+:root[data-style="night"] .tab { font: 500 14px var(--body); text-transform: none; letter-spacing: 0; border-radius: 999px; color: var(--muted); padding: 8px 15px; }
+:root[data-style="night"] .tab[aria-selected="true"] { background: var(--signal); color: var(--on-signal); border-color: var(--signal); }
+.stage { margin-top: 14px; min-height: 480px; overflow: hidden; }
+.pane { display: grid; grid-template-columns: 1.3fr 1fr; gap: 26px; padding: 24px; }
+.pane[hidden] { display: none; }
+@media (prefers-reduced-motion: no-preference) { .pane:not([hidden]) { animation: rise .35s ease both; } }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+.txt { display: grid; gap: 11px; align-content: start; }
+.txt p { color: var(--muted); font-size: 15.5px; }
+.k { font: 700 11.5px var(--mono); color: var(--signal); letter-spacing: .1em; text-transform: uppercase; }
+:root[data-style="night"] .k { color: var(--cool); font-weight: 500; }
+.navrow { display: flex; justify-content: space-between; align-items: center; padding: 11px 24px; border-top: var(--bw) solid var(--line); font: 12px var(--mono); color: var(--muted); }
+.navrow button { font: 700 12.5px var(--mono); border: 1px solid var(--line); border-radius: var(--radius); background: transparent; padding: 5px 11px; color: var(--ink); }
+
+/* Overview map */
+.sys { display: grid; grid-template-columns: 1fr 26px 1fr 26px 1fr; align-items: center; }
+.col { display: grid; gap: 7px; }
+.col .lbl { font: 11px var(--mono); letter-spacing: .12em; color: var(--muted); }
+.box { border: 1px solid var(--line); background: var(--sunk); border-radius: var(--radius); padding: 7px 10px; font-size: 13.5px; line-height: 1.35; }
+.box small { display: block; color: var(--muted); font: 11.5px var(--mono); }
+.box.eng { border-color: var(--signal); }
+.box.eng b { color: var(--signal); }
+.box.link { cursor: pointer; transition: transform .15s, border-color .2s; }
+.box.link:hover { transform: translateX(3px); border-color: var(--signal); }
+.ar { height: 1px; background: var(--line); position: relative; margin: 0 3px; overflow: visible; }
+.ar::after { content: ""; position: absolute; right: -1px; top: -4px; border: 4px solid transparent; border-left: 6px solid var(--line); }
+.ar i { position: absolute; top: -2px; left: 0; width: 7px; height: 5px; border-radius: 2px; background: var(--signal); }
+@media (prefers-reduced-motion: no-preference) { .ar i { animation: slide 1.6s linear infinite; } .ar.b i { animation-delay: .8s; } }
+@keyframes slide { from { left: 0; opacity: 0; } 20% { opacity: 1; } to { left: calc(100% - 7px); opacity: 0; } }
+
+/* Weekly report */
+.mock { border: 1px solid var(--line); border-radius: var(--radius); background: var(--sunk); padding: 13px; display: grid; gap: 9px; align-content: start; }
+.mhead { display: flex; gap: 9px; align-items: center; font-size: 14px; }
+.mhead small { color: var(--muted); font: 11px var(--mono); margin-left: 6px; }
+.code { font: 12px var(--mono); border: 1px solid var(--line); border-radius: var(--radius); overflow-x: auto; background: var(--panel); }
+.code table { border-collapse: collapse; width: 100%; min-width: 460px; }
+.code th, .code td { padding: 4px 9px; text-align: left; white-space: nowrap; }
+.code th { color: var(--muted); font-weight: 400; border-bottom: 1px dashed var(--line); }
+.code td.n { text-align: center; }
+.code tr.g td { color: var(--signal); padding-top: 8px; font-weight: 700; }
+.p0 { color: var(--off); } .p1 { color: var(--signal); } .p2 { color: var(--risk); } .p3 { color: var(--ok); }
+.small { font-size: 13px; color: var(--muted); }
+.reveal > * { opacity: 0; transform: translateX(-8px); }
+.reveal.go > * { animation: inrow .35s ease forwards; }
+@keyframes inrow { to { opacity: 1; transform: none; } }
+
+/* Daily alerts */
+.feed { display: grid; gap: 6px; align-content: start; }
+.al { display: grid; grid-template-columns: 24px 1fr auto; gap: 8px; align-items: center; border: 1px solid var(--line); border-radius: var(--radius); background: var(--sunk); padding: 8px 11px; font-size: 14px; }
+.al small { font: 11px var(--mono); color: var(--muted); }
+.feed .al { opacity: 0; transform: translateY(8px) scale(.98); }
+.feed.go .al { animation: pop .4s cubic-bezier(.2,.9,.3,1.2) forwards; }
+@keyframes pop { to { opacity: 1; transform: none; } }
+
+/* Risk demo */
+.risk { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+.matrix { display: grid; grid-template-columns: 18px repeat(5, 1fr); gap: 4px; font: 12px var(--mono); }
+.ax { color: var(--muted); display: grid; place-items: center; font-size: 11px; }
+.cell { aspect-ratio: 1; border-radius: 4px; display: grid; place-items: center; transition: transform .2s; position: relative; }
+.cell.low { background: color-mix(in srgb, var(--ink) 5%, transparent); color: var(--muted); }
+.cell.med { background: color-mix(in srgb, var(--ink) 13%, transparent); color: var(--ink); }
+.cell.high { background: color-mix(in srgb, var(--risk) 30%, transparent); color: var(--ink); }
+.cell.ext { background: color-mix(in srgb, var(--off) 35%, transparent); color: var(--ink); }
+.cell.cur { transform: scale(1.12); z-index: 1; outline: 2px solid var(--ink); outline-offset: 1px; font-weight: 700; }
+.axx { grid-column: 2 / -1; text-align: center; color: var(--muted); font-size: 11px; letter-spacing: .08em; }
+.ctrl { display: grid; gap: 14px; }
+.sl { display: grid; gap: 4px; }
+.sl label { display: flex; justify-content: space-between; font: 12.5px var(--mono); color: var(--muted); }
+.sl label b { color: var(--ink); }
+input[type=range] { width: 100%; accent-color: var(--signal); }
+.score { display: flex; align-items: baseline; gap: 12px; }
+.score b { font: var(--dw) 52px/1 var(--display); font-variant-numeric: tabular-nums; }
+.lvl { font: 700 12px var(--mono); padding: 3px 9px; border-radius: 999px; text-transform: uppercase; }
+.lvl.low, .lvl.med { background: color-mix(in srgb, var(--ink) 12%, transparent); }
+.lvl.high { background: var(--risk); color: #1d1d1b; }
+.lvl.ext { background: var(--off); color: #fff; }
+.legend2 { display: flex; flex-wrap: wrap; gap: 4px 12px; font: 11.5px var(--mono); color: var(--muted); }
+.verdict { border-left: 3px solid var(--line); padding: 6px 10px; font-size: 14.5px; transition: border-color .2s; }
+.verdict.flag { border-color: var(--off); }
+.verdict b { display: block; }
+
+/* Intake demo */
+.track { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; position: relative; }
+.stp { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; background: var(--sunk); display: grid; gap: 3px; transition: background .3s, color .3s, transform .3s; }
+.stp .n { font: 700 11.5px var(--mono); color: var(--muted); }
+.stp b { font-size: 14px; }
+.stp.on { background: var(--ink); color: var(--bg); transform: translateY(-3px); }
+.stp.on .n { color: inherit; opacity: .7; }
+.stp.done { border-color: var(--ok); }
+.bar { height: 6px; border-radius: 3px; background: color-mix(in srgb, var(--ink) 12%, transparent); margin: 12px 0; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--signal); transition: width .6s ease; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; min-height: 40px; }
+.log { display: grid; gap: 6px; margin-top: 10px; }
+.log .al { animation: pop .35s cubic-bezier(.2,.9,.3,1.2) both; }
+.mail { border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); padding: 10px 12px; font-size: 14px; display: grid; gap: 3px; animation: pop .35s ease both; }
+.mail small { font: 11px var(--mono); color: var(--muted); }
+
+
+/* Project standard */
+.std { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-content: start; }
+.std-b { border: 1px solid var(--line); border-radius: var(--radius); background: var(--sunk); padding: 11px 12px; display: grid; gap: 6px; align-content: start; }
+.std-b .lbl, .lbl { font: 11px var(--mono); letter-spacing: .1em; color: var(--muted); }
+.leg { display: grid; grid-template-columns: 22px auto 1fr; gap: 6px; align-items: center; font-size: 13px; }
+.leg span:last-child { color: var(--muted); font-size: 12px; line-height: 1.3; }
+.phases { display: flex; flex-wrap: wrap; gap: 4px; }
+.phases span { font: 12px var(--mono); padding: 3px 8px; border: 1px solid var(--line); border-radius: var(--radius); transition: background .3s, color .3s; }
+.phases span.on { background: var(--ink); color: var(--bg); }
+.chipset { display: flex; flex-wrap: wrap; gap: 5px; }
+.chipset span { font-size: 12.5px; border: 1px solid var(--line); border-radius: 999px; padding: 1px 9px; }
+@media (max-width: 900px) { .std { grid-template-columns: 1fr; } }
+/* AI doc demo */
+.ai { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+.doc { background: #fbfbfd; color: #1b2030; border-radius: 4px; padding: 16px; font-size: 12px; line-height: 1.45; display: grid; gap: 7px; border: 1px solid #c9cedb; min-height: 360px; align-content: start; }
+.doc .t { font: 700 16px Arial, sans-serif; }
+.doc .sub { color: #5b6275; font-size: 11px; }
+.doc .sec { font-weight: 700; font-size: 12px; color: #1f3a8a; border-bottom: 1px solid #c9cedb; padding-bottom: 2px; opacity: .25; transition: opacity .3s; }
+.doc .ln { height: 5px; border-radius: 3px; background: #c9cedb; width: 0; transition: width .5s ease; }
+.doc .card2 { border: 1px solid #c9cedb; border-left: 4px solid #e0a020; border-radius: 3px; padding: 6px 8px; display: grid; gap: 4px; background: #fff; opacity: 0; transform: translateY(6px); transition: opacity .4s, transform .4s; }
+.doc .blank { border: 1px dashed #9aa3bd; color: #6b7387; padding: 5px 8px; border-radius: 3px; font-size: 11px; opacity: 0; transition: opacity .4s; }
+.doc.s1 .sec.sa, .doc.s2 .sec.sb, .doc.s3 .sec.sc, .doc.s4 .sec.sd, .doc.s5 .sec.se { opacity: 1; }
+.doc.s5 .card2, .doc.s5 .blank { opacity: 1; transform: none; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; font: 13px var(--mono); }
+.steps li { display: grid; grid-template-columns: 20px 1fr; gap: 6px; color: var(--muted); }
+.steps li::before { content: "○"; }
+.steps li.run { color: var(--ink); } .steps li.run::before { content: "◐"; color: var(--signal); }
+.steps li.ok { color: var(--ink); } .steps li.ok::before { content: "✓"; color: var(--ok); }
+.vs { display: grid; gap: 10px; margin-top: 4px; }
+.vs .row { display: grid; gap: 4px; }
+.vs .row div:first-child { display: flex; justify-content: space-between; font: 12.5px var(--mono); }
+.vs .track2 { height: 12px; border-radius: 3px; background: color-mix(in srgb, var(--ink) 10%, transparent); overflow: hidden; }
+.vs .track2 i { display: block; height: 100%; }
+.clock { font: var(--dw) 34px/1 var(--display); font-variant-numeric: tabular-nums; }
+
+/* Bottom cards */
+.bts { display: grid; grid-template-columns: 1.25fr 1fr 1fr 1fr; gap: 14px; }
+.bc { padding: 16px 18px; display: grid; gap: 9px; align-content: start; }
+.bc p { color: var(--muted); font-size: 14.5px; }
+.teams { display: flex; flex-wrap: wrap; gap: 6px; }
+.teams span { font-size: 12.5px; border: 1px solid var(--line); border-radius: 999px; padding: 1px 10px; }
+.todo { border: 1px dashed var(--signal); color: var(--signal); border-radius: var(--radius); padding: 9px 12px; font-size: 14px; }
+
+footer.wrap { padding: 32px 24px calc(64px + env(safe-area-inset-bottom)); }
+footer { font: 11.5px var(--mono); color: var(--muted); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+
+@media (max-width: 1000px) { .bts { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 900px) {
+  .hero-card { grid-template-columns: 1fr; padding: 20px; }
+  .scene { height: 360px; }
+  .toast { left: 10px; right: 10px; bottom: 10px; max-width: none; }
+  .nums { grid-template-columns: 1fr 1fr; }
+  .num:nth-child(2) { border-right: 0; }
+  .num:nth-child(-n+2) { border-bottom: var(--bw) solid var(--line); }
+  .ps { grid-template-columns: 1fr; gap: 8px; }
+  .mid { transform: rotate(90deg); height: 22px; }
+  .pane { grid-template-columns: 1fr; padding: 16px; }
+  .sys { grid-template-columns: 1fr; gap: 8px; }
+  .ar { display: none; }
+  .risk, .ai { grid-template-columns: 1fr; }
+  .track { grid-template-columns: 1fr 1fr; }
+  .bts { grid-template-columns: 1fr; }
+  .stage { min-height: 0; }
+  .navrow { padding: 10px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } .reveal > *, .feed .al { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-card card">
+      <div class="hero-text">
+        <a class="backlink" href="index.html">← Soseki Kashimori</a>
+        <span class="eyebrow">Case study 01 · Amazon · 2026</span>
+        <h1>From 0 to 21 projects in <em>one</em> view</h1>
+        <div class="barcode" aria-hidden="true"></div>
+        <div class="trk" aria-hidden="true"><span>NO. 01 / 21</span><span>TOKYO → LEADERSHIP</span><span>AUG 2026</span></div>
+        <p class="lede">I designed and launched a program management system for the AMXL Japan Programs &amp; Product team. It tracks every project in one place, posts an automatic weekly health report that flags risks before they escalate, and <mark>writes the review document with AI</mark>.</p>
+        <div class="role">
+          <span>Role <b>Program Manager Intern</b></span>
+          <span>Where <b>Tokyo</b></span>
+          <span>When <b>May – Aug 2026</b></span>
+          <span>Tools <b>Asana · Slack · AI agent · Python</b></span>
+        </div>
+      </div>
+      <div class="scene" role="img" aria-label="Animation: 21 scattered projects are sorted into 5 program areas and coloured by status, then a weekly report is posted.">
+        <canvas id="scene"></canvas>
+        <div class="scene-top"><span id="scene-label">INCOMING · 21 PROJECTS</span></div>
+        <div class="toast card" id="toast">
+          <div class="who"><span class="bot">AI</span>Portfolio Bot <small>Mon 9:30 AM</small></div>
+          <div>Weekly portfolio health posted</div>
+          <div class="dots"><span><span class="d ok"></span>13 on track</span><span><span class="d risk"></span>3 at risk</span><span><span class="d off"></span>1 off</span><span><span class="d hold"></span>1 hold</span><span><span class="d done"></span>3 other</span></div>
+        </div>
+        <button type="button" class="replay" id="replay">↻ Replay</button>
+      </div>
+    </div>
+    <div class="nums">
+      <div class="num"><b>0 → <em>21</em></b><span>projects tracked across 5 program areas</span></div>
+      <div class="num"><b>4h → <em>&lt;5m</em></b><span>to prepare a review document</span></div>
+      <div class="num"><b><em>98%</em></b><span>less review prep time</span></div>
+      <div class="num"><b><em>0</em></b><span>manual steps for the weekly report</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <div class="ps">
+        <div class="side card">
+          <span class="eyebrow" style="color:var(--muted)">The problem</span>
+          <ul>
+            <li><span>No way to check portfolio health without asking each PM</span></li>
+            <li><span>No automated reporting or early warning</span></li>
+            <li><span>Requests went into a form and disappeared</span></li>
+            <li><span>Each review took about 4 hours to prepare</span></li>
+          </ul>
+        </div>
+        <div class="mid" aria-hidden="true">→</div>
+        <div class="side card after">
+          <span class="eyebrow">What I built</span>
+          <ul>
+            <li><span><b>One portfolio</b> with standard fields for every project</span></li>
+            <li><span><b>Daily alerts and a weekly health report</b> in Slack</span></li>
+            <li><span><b>Automatic risk scoring</b> and a tracked request backlog</span></li>
+            <li><span>An AI-written review document in <mark>under 5 minutes</mark></span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="explore">
+    <div class="wrap">
+      <div class="head">
+        <div class="l"><span class="eyebrow">Explore the system</span><h2>Try each part yourself</h2></div>
+        <span class="small">Recreations with invented data</span>
+      </div>
+      <div class="tabs" role="tablist" aria-label="System parts">
+        <button class="tab" role="tab" id="t-overview" aria-controls="overview" aria-selected="true"><span class="i">01</span>Overview</button>
+        <button class="tab" role="tab" id="t-standard" aria-controls="standard" aria-selected="false" tabindex="-1"><span class="i">02</span>Project standard</button>
+        <button class="tab" role="tab" id="t-ai-review" aria-controls="ai-review" aria-selected="false" tabindex="-1"><span class="i">03</span>AI review doc <span class="try">TRY</span></button>
+        <button class="tab" role="tab" id="t-risk-scoring" aria-controls="risk-scoring" aria-selected="false" tabindex="-1"><span class="i">04</span>Risk scoring <span class="try">TRY</span></button>
+        <button class="tab" role="tab" id="t-intake" aria-controls="intake" aria-selected="false" tabindex="-1"><span class="i">05</span>Intake <span class="try">TRY</span></button>
+        <button class="tab" role="tab" id="t-weekly-report" aria-controls="weekly-report" aria-selected="false" tabindex="-1"><span class="i">06</span>Weekly report</button>
+        <button class="tab" role="tab" id="t-daily-alerts" aria-controls="daily-alerts" aria-selected="false" tabindex="-1"><span class="i">07</span>Daily alerts</button>
+      </div>
+
+      <div class="stage card">
+        <!-- Overview -->
+        <div class="pane" role="tabpanel" id="overview" aria-labelledby="t-overview">
+          <div class="sys">
+            <div class="col">
+              <span class="lbl">INPUTS</span>
+              <div class="box">Intake form</div><div class="box">PM status updates</div><div class="box">Risk register</div><div class="box">Program metrics</div>
+            </div>
+            <div class="ar"><i></i></div>
+            <div class="col">
+              <span class="lbl">HUB</span>
+              <div class="box link" data-go="standard" tabindex="0"><b>Asana portfolio</b><small>21 projects · 5 areas · standard fields</small></div>
+              <div class="box eng"><b>AI agent + schedules</b><small>4 skills · Python</small></div>
+            </div>
+            <div class="ar b"><i></i></div>
+            <div class="col">
+              <span class="lbl">OUTPUTS · CLICK ONE</span>
+              <div class="box link" data-go="daily-alerts" tabindex="0">Daily alerts<small>Mon–Fri 9:30</small></div>
+              <div class="box link" data-go="weekly-report" tabindex="0">Weekly health report<small>Mondays 9:30</small></div>
+              <div class="box link" data-go="ai-review" tabindex="0">AI review document<small>On demand</small></div>
+              <div class="box">One-page portfolio snapshot<small>On demand</small></div>
+              <div class="box link" data-go="intake" tabindex="0">Requester emails<small>On each decision</small></div>
+            </div>
+          </div>
+          <div class="txt">
+            <span class="k">How it fits together</span>
+            <h3>One source of truth, five automatic outputs</h3>
+            <p>PMs keep their projects up to date in Asana using one shared standard. An AI agent with four custom skills, Python scripts and scheduled jobs reads that live data and produces everything else.</p>
+            <p>Nobody copies status from one place to another, and leadership never has to open Asana to know where things stand.</p>
+          </div>
+        </div>
+
+
+        <!-- Project standard -->
+        <div class="pane" role="tabpanel" id="standard" aria-labelledby="t-standard" hidden>
+          <div class="std">
+            <div class="std-b"><span class="lbl">STATUS</span>
+              <div class="leg"><span class="d off"></span><b>Off Track</b><span>Blocked, needs leadership to unblock</span></div>
+              <div class="leg"><span class="d risk"></span><b>At Risk</b><span>Path to on track exists, not secured</span></div>
+              <div class="leg"><span class="d ok"></span><b>On Track</b><span>No blockers</span></div>
+              <div class="leg"><span class="d hold"></span><b>On Hold</b><span>Paused by an external dependency</span></div>
+              <div class="leg"><span class="d done"></span><b>Scoping</b><span>Pre-committed, no status yet</span></div>
+              <div class="leg"><span class="d ok" style="outline:2px solid var(--ok);outline-offset:1px;background:transparent"></span><b>Complete · Dropped</b><span>Closed out</span></div>
+            </div>
+            <div class="std-b"><span class="lbl">PRIORITY (PM)</span>
+              <div class="leg"><b class="p0">P0</b><b>Critical</b><span>Leadership commitment or blocker</span></div>
+              <div class="leg"><b class="p1">P1</b><b>High</b><span>Significant business impact</span></div>
+              <div class="leg"><b class="p2">P2</b><b>Medium</b><span>Improvement opportunity</span></div>
+              <div class="leg"><b class="p3">P3</b><b>Low</b><span>Nice to have, long-term</span></div>
+            </div>
+            <div class="std-b"><span class="lbl">PHASE · READ FROM SECTION NAMES</span>
+              <div class="phases" id="phases"><span>Planning</span><span>Execution</span><span>Validation</span><span>Launch</span><span>Post-Launch</span></div>
+            </div>
+            <div class="std-b"><span class="lbl">PROGRAM AREA</span>
+              <div class="chipset"><span>Cost to Serve</span><span>Customer Experience &amp; Quality</span><span>AMXL Network Growth Goals</span><span>Supply Chain Optimization</span><span>Last Mile OTR</span></div>
+            </div>
+          </div>
+          <div class="txt">
+            <span class="k">The foundation</span>
+            <h3>Every project speaks the same language</h3>
+            <p>Before, each PM reported progress their own way. I defined one standard that every project in the portfolio uses: status, priority, program area, phase, owner and ETA.</p>
+            <p>Phase is never typed by hand. The system reads it from the project's section names, so it stays accurate as work moves forward.</p>
+            <p>Each project also links to its 2026 KPI in a Program Metrics tracker, with a monthly goal and actual, so reviews can show numbers next to status.</p>
+          </div>
+        </div>
+        <!-- AI review -->
+        <div class="pane" role="tabpanel" id="ai-review" aria-labelledby="t-ai-review" hidden>
+          <div class="doc s0" id="doc" aria-label="Generated review document preview">
+            <div class="t">P&amp;P Review</div>
+            <div class="sub">Bi-weekly · Deep-dive PM: Mei · generated from live data</div>
+            <div class="sec sa">1. Executive Summary</div><div class="ln" data-w="94"></div><div class="ln" data-w="78"></div>
+            <div class="sec sb">2. Highlights &amp; Lowlights</div><div class="ln" data-w="82"></div><div class="ln" data-w="60"></div>
+            <div class="sec sc">3. Focus Topics</div><div class="ln" data-w="88"></div>
+            <div class="sec sd">4. Deep-dive cards</div>
+            <div class="card2"><b>Service Rating Uplift · At Risk</b><div class="ln" data-w="90"></div><div class="sub">Workstreams · risks · 2026 metrics</div></div>
+            <div class="sec se">5–6. Decisions &amp; Key Activities</div>
+            <div class="blank">Left blank for the presenter</div>
+            <div class="sec se">Appendix A · Portfolio snapshot</div><div class="ln" data-w="86"></div>
+            <div class="sec se">Appendix B · Program metrics, goal vs actual by month</div><div class="ln" data-w="70"></div>
+          </div>
+          <div class="txt">
+            <span class="k">The AI part</span>
+            <h3>Type one sentence, get the review document</h3>
+            <p>"Generate the deep-dive doc for Mei." One document per PM, built from live data. AI writes only the narrative, following built-in writing rules: specific data points, plain active sentences, highlights ordered by importance.</p>
+            <ul class="steps" id="steps">
+              <li>Python fetches live data in parallel · &lt;2 min</li>
+              <li>AI writes summary, highlights and lowlights</li>
+              <li>Elevated projects and High/Extreme risks → focus topics</li>
+              <li>Cards with workstreams, top 3 risks and KPIs</li>
+              <li>Python builds the A4 Word doc with appendices</li>
+            </ul>
+            <div><button type="button" class="btn primary" id="gen">▶ Generate document</button></div>
+            <div class="vs">
+              <div class="row"><div><span>By hand</span><span>4:00:00</span></div><div class="track2"><i style="width:100%;background:var(--muted)"></i></div></div>
+              <div class="row"><div><span>With the system</span><span class="clock" id="clock" style="font-size:16px">0:00</span></div><div class="track2"><i id="fast" style="width:0;background:var(--signal);transition:width 4s linear"></i></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Risk -->
+        <div class="pane" role="tabpanel" id="risk-scoring" aria-labelledby="t-risk-scoring" hidden>
+          <div class="risk">
+            <div class="matrix" id="matrix" aria-hidden="true"></div>
+            <div class="ctrl">
+              <div class="sl"><label for="sev">Severity <b id="sev-v">4</b></label><input type="range" id="sev" min="1" max="5" step="1" value="4"></div>
+              <div class="sl"><label for="lik">Likelihood <b id="lik-v">5</b></label><input type="range" id="lik" min="1" max="5" step="1" value="5"></div>
+              <div class="score"><b id="score">20</b><span class="lvl ext" id="lvl">Extreme</span></div>
+              <div class="legend2"><span>1–4 Low</span><span>5–9 Medium</span><span>10–15 High</span><span>16–25 Extreme</span></div>
+              <div class="verdict flag" id="verdict" aria-live="polite"><b>Added to Focus Topics</b>Shows up in the next review, even though the project is marked On Track.</div>
+            </div>
+          </div>
+          <div class="txt">
+            <span class="k">Early warning · try the sliders</span>
+            <h3>Serious risks surface on their own</h3>
+            <p>PMs rate each risk from 1 to 5 for severity and likelihood. The system multiplies them.</p>
+            <p>Scores fall into four bands. High (10–15) and Extreme (16–25) risks are pulled into the review document as focus topics automatically, each with its own framing, so a green project can't hide a serious risk.</p>
+          </div>
+        </div>
+
+        <!-- Intake -->
+        <div class="pane" role="tabpanel" id="intake" aria-labelledby="t-intake" hidden>
+          <div>
+            <div class="track">
+              <div class="stp" id="s1"><span class="n">01</span><b>Submit</b></div>
+              <div class="stp" id="s2"><span class="n">02</span><b>Backlog</b></div>
+              <div class="stp" id="s3"><span class="n">03</span><b>Review</b></div>
+              <div class="stp" id="s4"><span class="n">04</span><b>Reply</b></div>
+            </div>
+            <div class="bar"><i id="ibar"></i></div>
+            <div class="actions" id="actions"><button type="button" class="btn primary" id="submit">▶ Submit a test request</button></div>
+            <div class="log" id="log" aria-live="polite"></div>
+          </div>
+          <div class="txt">
+            <span class="k">Intake &amp; backlog · try it</span>
+            <h3>Every request gets a record and an answer</h3>
+            <p>The old intake form wasn't connected to anything, so requests had no visible status.</p>
+            <p>Now each request lands in a backlog with its requestor, team, priority and problem. The reviewer sets a decision: Pending, Accepted, Rejected or Needs More Info, and the requester is emailed automatically. No decision in 14 days triggers an SLA alert.</p>
+          </div>
+        </div>
+
+        <!-- Weekly report -->
+        <div class="pane" role="tabpanel" id="weekly-report" aria-labelledby="t-weekly-report" hidden>
+          <div class="mock">
+            <div class="mhead"><span class="bot">AI</span><span><b>Portfolio Bot</b><small>Mon 9:30 AM</small></span></div>
+            <b style="font-size:14px">📊 Weekly Portfolio Health</b>
+            <div class="small">Week of Aug 10 · auto-generated every Monday at 9:30 AM</div>
+            <b style="font-size:13.5px">① Project Overview · Active programs (21)</b>
+            <div class="code"><table>
+              <thead><tr><th>Project</th><th>PM</th><th>Due</th><th>Priority</th><th>OD</th><th>NDue</th><th>NAss</th></tr></thead>
+              <tbody class="reveal" id="rows">
+                <tr class="g"><td colspan="7">━━ COST TO SERVE (4) ━━</td></tr>
+                <tr><td><span class="d ok"></span>Sort Center Pilot</td><td>Ken</td><td>–</td><td>–</td><td class="n">1</td><td class="n">–</td><td class="n">–</td></tr>
+                <tr><td><span class="d done"></span>Packaging Refresh</td><td>Ken</td><td>⚠ Sep 30</td><td>–</td><td class="n">4</td><td class="n">–</td><td class="n">–</td></tr>
+                <tr class="g"><td colspan="7">━━ CUSTOMER EXPERIENCE &amp; QUALITY (13) ━━</td></tr>
+                <tr><td><span class="d risk"></span>Service Rating Uplift</td><td>Mei</td><td>Dec 31</td><td class="p2">● P2</td><td class="n">1</td><td class="n">3</td><td class="n">2</td></tr>
+                <tr><td><span class="d ok"></span>Returns Program</td><td>Jun</td><td>Dec 31</td><td class="p0">● P0</td><td class="n">–</td><td class="n">–</td><td class="n">–</td></tr>
+                <tr><td><span class="d ok"></span>Damage Reduction</td><td>Jun</td><td>Sep 30</td><td class="p1">● P1</td><td class="n">–</td><td class="n">3</td><td class="n">–</td></tr>
+                <tr><td colspan="7" style="color:var(--muted)">  … 10 more</td></tr>
+              </tbody>
+            </table></div>
+            <div class="small">📌 Task health · PM owners: @Mei (6) @Jun (3) @Ken (5)</div>
+            <b style="font-size:13.5px">② At-Risk Projects · No Recent Update</b>
+            <div class="small">15 of 21 active projects updated in the last 14 days.<br><span style="white-space:nowrap">⚠️ <span class="d risk"></span>Service Rating Uplift · Mei · 18d ago</span></div>
+            <b style="font-size:13.5px">③ Backlog</b>
+            <div class="small">📥 New requests this week: 1 · ⏰ Overdue for review (14+ days): <span style="color:var(--off)">1</span></div>
+            <div class="small" style="border-top:1px dashed var(--line);padding-top:6px">✅ Weekly check complete · Next report: Mon Aug 17, 9:30 AM</div>
+          </div>
+          <div class="txt">
+            <span class="k">Every Monday · 9:30 AM</span>
+            <h3>Leadership reviews the portfolio without opening Asana</h3>
+            <p>Three sections. ① Every active project grouped by program area, with status, PM, due date, priority and task health: overdue (OD), no due date (NDue) and no owner (NAss). PMs with open issues are @mentioned.</p>
+            <p>② At Risk, Off Track and On Hold projects with no status update in 14 days, named with their PM. ③ New requests and any waiting too long for a decision.</p><p>A duplicate check stops it posting twice, and a completion marker confirms each run.</p>
+          </div>
+        </div>
+
+        <!-- Daily alerts -->
+        <div class="pane" role="tabpanel" id="daily-alerts" aria-labelledby="t-daily-alerts" hidden>
+          <div class="feed" id="feed">
+            <div class="al"><span>🟡</span><span>Status update: Service Rating Uplift → At Risk</span><small>status update</small></div>
+            <div class="al"><span>✅</span><span>Packaging Refresh marked Complete</span><small>complete / dropped</small></div>
+            <div class="al"><span>⏰</span><span>Damage Reduction is due in exactly 7 days</span><small>due in 7 days</small></div>
+            <div class="al"><span>🚨</span><span>Returns Program is due today</span><small>due today</small></div>
+            <div class="al"><span>🚨</span><span>Driver Training is past due and not complete</span><small>overdue</small></div>
+            <div class="al"><span>📥</span><span>New request: Warehouse Signage</span><small>new submission</small></div>
+            <div class="al"><span>⚠️</span><span>Request with no review decision for 14+ days</span><small>SLA breach</small></div>
+          </div>
+          <div class="txt">
+            <span class="k">Mon–Fri · 9:30 AM</span>
+            <h3>A morning summary of everything that changed</h3>
+            <p>Each weekday at 9:30 the system checks every project for changes since yesterday's run (since Friday on Mondays) and posts seven kinds of alert: status updates, completions, due in 7 days, due today, overdue, new requests and backlog SLA breaches.</p><p>A token warm-up runs at 9:25 so the 9:30 run doesn't fail on login.</p>
+            <div><button type="button" class="btn" id="refeed">↻ Replay this morning's alerts</button></div>
+          </div>
+        </div>
+
+        <div class="navrow"><button type="button" id="prev">← Prev</button><span id="count">1 / 7</span><button type="button" id="next">Next →</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-bottom:0">
+    <div class="wrap">
+      <div class="bts">
+        <div class="bc card"><span class="eyebrow">Buy-in</span><h3>Seven teams, one system</h3>
+          <div class="teams"><span>Operations</span><span>ACES</span><span>Finance</span><span>Supply Chain</span><span>Topology</span><span>Retail</span><span>Product</span></div>
+          <p>Gathered requirements with each team and set clear data guidelines for every PM, since the reports are only as good as what goes into Asana.</p></div>
+        <div class="bc card"><span class="eyebrow">Reliability</span><h3>Never silently wrong</h3><p>Data is fetched in parallel and retried automatically, so a failed read is never reported as a healthy project.</p></div>
+        <div class="bc card"><span class="eyebrow">Handover</span><h3>Runs after I left</h3><p>Primary and backup owners, a team guide, SOPs and a maintenance guide for next year's reset. A new owner can take over in under 30 minutes.</p></div>
+        <div class="bc card"><span class="eyebrow">What I learned</span><p class="todo">Tony: one or two honest sentences here.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap"><a href="index.html" style="text-decoration:none">← Back to portfolio</a><span>Recreations only · no confidential Amazon data shown</span></footer>
+
+<script>
+(function () {
+  const root = document.documentElement;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const css = n => getComputedStyle(root).getPropertyValue(n).trim();
+  const $ = id => document.getElementById(id);
+
+  /* ---------- Opening scene ---------- */
+  const cv = $('scene'), ctx = cv.getContext('2d');
+  const lanes = [4, 13, 2, 0, 2];
+  const areaNames = ['COST TO SERVE', 'CX & QUALITY', 'NETWORK GROWTH', 'SUPPLY CHAIN OPT.', 'LAST MILE OTR'];
+  const status = ['ok','done','done','none', 'risk','ok','ok','ok','ok','ok','risk','ok','ok','off','ok','ok','ok', 'ok','hold', 'ok','risk'];
+  let W = 0, H = 0, items = [], t0 = 0, raf = 0, C = {};
+  function colors() { C = { none: css('--done'), ok: css('--ok'), risk: css('--risk'), off: css('--off'), hold: css('--hold'), done: css('--done'), ink: css('--ink'), muted: css('--muted'), line: css('--line'), signal: css('--signal'), night: root.dataset.style === 'night', premium: root.dataset.style === 'premium', soft: css('--soft') }; }
+  function size() { const d = devicePixelRatio || 1; W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); layout(); }
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  function layout() {
+    seed = 11; items = [];
+    const narrow = W < 520, left = narrow ? 112 : 142, top = 40, rowH = (H - top - (narrow ? 112 : 14)) / 5, sp = Math.min(25, (W - left - 20) / 13);
+    let k = 0;
+    lanes.forEach((n, r) => { for (let i = 0; i < n; i++) items.push({ sx: 20 + rnd() * (W - 40), sy: 30 + rnd() * (H - 60), tx: left + 12 + i * sp, ty: top + rowH * r + rowH / 2, st: status[k++], d: rnd() * 600 }); });
+    items.rowH = rowH; items.top = top; items.left = left; items.sz = Math.min(1, sp / 22);
+  }
+  const ease = x => 1 - Math.pow(1 - x, 3);
+  function shape(x, y, col, s) {
+    ctx.fillStyle = col;
+    if (C.night) { ctx.beginPath(); ctx.arc(x, y, 7 * s, 0, 7); ctx.shadowColor = col; ctx.shadowBlur = 12 * s; ctx.fill(); ctx.shadowBlur = 0; }
+    else if (C.premium) { const w = 17 * s, h = w * .78; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x - w / 2, y - h / 2, w, h, 3) : ctx.rect(x - w / 2, y - h / 2, w, h); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.fillRect(x - 1, y - h / 2, 2, h); }
+    else { const w = 18 * s; ctx.fillRect(x - w / 2, y - w / 2 * .8, w, w * .8); ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.strokeRect(x - w / 2, y - w / 2 * .8, w, w * .8); ctx.beginPath(); ctx.moveTo(x - w / 2, y); ctx.lineTo(x + w / 2, y); ctx.stroke(); }
+  }
+  function draw(ms) {
+    ctx.clearRect(0, 0, W, H);
+    const lanesOn = Math.min(1, Math.max(0, (ms - 200) / 600));
+    ctx.globalAlpha = lanesOn;
+    for (let r = 0; r < 5; r++) {
+      const y = items.top + items.rowH * r + items.rowH / 2;
+      ctx.strokeStyle = C.premium ? C.soft : C.line; ctx.lineWidth = 1; ctx.setLineDash(C.night ? [] : C.premium ? [2, 4] : [4, 4]);
+      ctx.globalAlpha = lanesOn * (C.night ? .6 : C.premium ? 1 : .5);
+      ctx.beginPath(); ctx.moveTo(items.left, y + items.rowH / 2 - 2); ctx.lineTo(W - 14, y + items.rowH / 2 - 2); ctx.stroke();
+      ctx.globalAlpha = lanesOn; ctx.fillStyle = C.muted; ctx.font = '11px ' + (C.night ? 'IBM Plex Mono' : 'Courier Prime') + ', monospace';
+      ctx.font = (W < 420 ? '9.5px ' : '10.5px ') + (C.night || C.premium ? 'IBM Plex Mono' : 'Courier Prime') + ', monospace'; ctx.fillText(areaNames[r], 12, y + 4); if (!lanes[r]) { ctx.fillStyle = C.muted; ctx.fillText('— none', items.left + 12, y + 4); }
+    }
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+    let moving = false;
+    for (const it of items) {
+      const p = Math.min(1, Math.max(0, (ms - 500 - it.d) / 1300)); if (p < 1) moving = true;
+      const e = ease(p), x = it.sx + (it.tx - it.sx) * e, y = it.sy + (it.ty - it.sy) * e - Math.sin(e * Math.PI) * 30;
+      const c = Math.min(1, Math.max(0, (ms - 2600) / 500));
+      shape(x, y, c > .5 ? C[it.st] : C.muted, items.sz || 1);
+    }
+    $('scene-label').textContent = ms < 2400 ? 'INCOMING · 21 PROJECTS' : ms < 3000 ? 'SORTING BY PROGRAM AREA' : '5 PROGRAM AREAS · STATUS';
+    return moving || ms < 3300;
+  }
+  function play() {
+    colors(); $('toast').classList.remove('on');
+    if (reduce) { draw(9999); $('toast').classList.add('on'); return; }
+    cancelAnimationFrame(raf); t0 = performance.now();
+    const step = now => { const ms = now - t0; const more = draw(ms); if (ms > 3300) $('toast').classList.add('on'); if (more) raf = requestAnimationFrame(step); };
+    raf = requestAnimationFrame(step);
+  }
+  size(); addEventListener('resize', () => { size(); draw(9999); });
+  $('replay').addEventListener('click', play);
+  if ('IntersectionObserver' in window) { let done = false; new IntersectionObserver(es => { if (es[0].isIntersecting && !done) { done = true; play(); } }, { threshold: .3 }).observe(cv); } else play();
+
+  colors(); draw(0);
+
+  /* ---------- Highlights draw when seen ---------- */
+  const marks = [...document.querySelectorAll('mark')];
+  let markIO = null;
+  if (!reduce && 'IntersectionObserver' in window) {
+    root.classList.add('hl-js');
+    markIO = new IntersectionObserver(es => {
+      let i = 0;
+      es.forEach(en => {
+        if (!en.isIntersecting) return;
+        const m = en.target;
+        m.style.transitionDelay = (250 + i++ * 380) + 'ms';
+        m.classList.add('lit');
+        markIO.unobserve(m);
+      });
+    }, { threshold: 1, rootMargin: '0px 0px -12% 0px' });
+    marks.forEach(m => markIO.observe(m));
+  }
+  function relight(pane) {
+    if (!markIO) return;
+    pane.querySelectorAll('mark').forEach(m => { m.classList.remove('lit'); m.style.transitionDelay = '0ms'; void m.offsetWidth; markIO.observe(m); });
+  }
+
+  /* ---------- Tabs ---------- */
+  const tabs = [...document.querySelectorAll('.tab')], ids = tabs.map(t => t.getAttribute('aria-controls'));
+  const enter = { 'standard': () => { const ph = [...$('phases').children]; ph.forEach(x => x.classList.remove('on')); ph.forEach((x, i) => setTimeout(() => { ph.forEach(y => y.classList.remove('on')); x.classList.add('on'); }, reduce ? 0 : 350 * i)); }, 'weekly-report': () => restart($('rows'), '.reveal', 70), 'daily-alerts': () => restart($('feed'), '.feed', 220) };
+  function restart(el, _, gap) { el.classList.remove('go'); [...el.children].forEach((c, i) => c.style.animationDelay = (i * gap) + 'ms'); void el.offsetWidth; el.classList.add('go'); }
+  function show(id, focus, push) {
+    if (!ids.includes(id)) id = 'overview';
+    tabs.forEach(t => { const on = t.getAttribute('aria-controls') === id; t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1; if (on && focus) t.focus(); });
+    ids.forEach(i => $(i).hidden = i !== id);
+    $('count').textContent = (ids.indexOf(id) + 1) + ' / ' + ids.length;
+    if (enter[id]) enter[id]();
+    relight($(id));
+    if (push) { try { history.replaceState(null, '', '#' + id); } catch (e) {} }
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => show(ids[i], false, true));
+    t.addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); show(ids[(i + (e.key === 'ArrowRight' ? 1 : ids.length - 1)) % ids.length], true, true); } });
+  });
+  const cur = () => tabs.findIndex(t => t.getAttribute('aria-selected') === 'true');
+  $('prev').onclick = () => show(ids[(cur() + ids.length - 1) % ids.length], false, true);
+  $('next').onclick = () => show(ids[(cur() + 1) % ids.length], false, true);
+  document.querySelectorAll('[data-go]').forEach(el => { const go = () => show(el.dataset.go, true, true); el.onclick = go; el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } }; });
+  addEventListener('hashchange', () => show(location.hash.slice(1)));
+  show(location.hash.slice(1));
+  $('refeed').onclick = () => enter['daily-alerts']();
+
+  /* ---------- Risk demo ---------- */
+  const sev = $('sev'), lik = $('lik');
+  function risk() {
+    const S = +sev.value, L = +lik.value, s = S * L;
+    $('sev-v').textContent = S; $('lik-v').textContent = L; $('score').textContent = s;
+    const band = v2 => v2 >= 16 ? 'ext' : v2 >= 10 ? 'high' : v2 >= 5 ? 'med' : 'low';
+    const lvl = band(s);
+    const lv = $('lvl'); lv.className = 'lvl ' + lvl; lv.textContent = { ext: 'Extreme', high: 'High', med: 'Medium', low: 'Low' }[lvl];
+    const v = $('verdict'); v.classList.toggle('flag', lvl === 'ext' || lvl === 'high');
+    v.innerHTML = lvl === 'ext' ? '<b>Focus topic: decision needed</b>Leadership is asked to define a mitigation before it happens, even if the project is On Track.'
+      : lvl === 'high' ? '<b>Focus topic: monitor closely</b>Raised in the next review with a request to prepare a mitigation plan.'
+      : '<b>Tracked in the risk register</b>Listed on the project, not escalated to the review.';
+    let h = '';
+    for (let l = 5; l >= 1; l--) { h += `<span class="ax">${l}</span>`; for (let x = 1; x <= 5; x++) { const v2 = x * l; h += `<span class="cell ${band(v2)}${x === S && l === L ? ' cur' : ''}">${v2}</span>`; } }
+    $('matrix').innerHTML = h + '<span></span><span class="axx">SEVERITY →</span>';
+  }
+  sev.oninput = lik.oninput = risk; risk();
+
+  /* ---------- Intake demo ---------- */
+  const log = $('log'), acts = $('actions');
+  let timers = [];
+  const later = (fn, ms) => timers.push(setTimeout(fn, reduce ? 0 : ms));
+  function stage(n) { for (let i = 1; i <= 4; i++) { $('s' + i).classList.toggle('on', i === n); $('s' + i).classList.toggle('done', i < n); } $('ibar').style.width = (n * 25) + '%'; }
+  function add(html) { const d = document.createElement('div'); d.innerHTML = html; log.appendChild(d.firstElementChild); }
+  function resetIntake() {
+    timers.forEach(clearTimeout); timers = []; log.innerHTML = ''; stage(0);
+    acts.innerHTML = '<button type="button" class="btn primary" id="submit">▶ Submit a test request</button>';
+    $('submit').onclick = submit;
+  }
+  function submit() {
+    acts.innerHTML = ''; stage(1);
+    add('<div class="al"><span>📝</span><span>"Warehouse signage refresh" · Requestor: Aiko · Team: LM Ops · P2 Medium</span><small>form</small></div>');
+    later(() => { stage(2); add('<div class="al"><span>📥</span><span>Backlog record created · Review decision: Pending</span><small>asana</small></div>'); add('<div class="al"><span>💬</span><span>Next 9:30 alert: New backlog submission</span><small>slack</small></div>'); }, 800);
+    later(() => { stage(3); decide(); }, 1700);
+  }
+  function decide() {
+    acts.innerHTML = '<button type="button" class="btn" data-d="Accepted">Accept</button><button type="button" class="btn" data-d="Rejected">Reject</button><button type="button" class="btn" data-d="Needs more info">Needs more info</button><button type="button" class="btn" id="wait">⏩ Wait 14 days</button>';
+    acts.querySelectorAll('[data-d]').forEach(b => b.onclick = () => reply(b.dataset.d));
+    $('wait').onclick = () => { $('wait').remove(); add('<div class="al" style="border-color:var(--off)"><span>⚠️</span><span>Backlog SLA breach: no review decision after 14 days</span><small>daily alert</small></div>'); add('<div class="al" style="border-color:var(--off)"><span>⏰</span><span>Listed under "Overdue for review" in Monday\'s report</span><small>weekly</small></div>'); };
+  }
+  function reply(d) {
+    acts.innerHTML = ''; stage(4);
+    later(() => {
+      add(`<div class="mail"><small>Automatic email · to requester</small><b>Your request "Warehouse signage refresh": ${d}</b><span class="muted">${d === 'Accepted' ? 'It is now tagged [Converted to project] and gets its own Asana project.' : d === 'Rejected' ? 'See the reviewer notes for the reason.' : 'Please add the missing details to the form.'}</span></div>`);
+      acts.innerHTML = '<button type="button" class="btn" id="again">↻ Try again</button>'; $('again').onclick = resetIntake;
+    }, 500);
+  }
+  resetIntake();
+
+  /* ---------- AI doc demo ---------- */
+  const doc = $('doc'), steps = [...$('steps').children], clock = $('clock'), fast = $('fast');
+  let gt = [];
+  function resetDoc() { gt.forEach(clearTimeout); gt = []; doc.className = 'doc s0'; doc.querySelectorAll('.ln').forEach(l => l.style.width = 0); steps.forEach(s => s.className = ''); clock.textContent = '0:00'; fast.style.transition = 'none'; fast.style.width = 0; }
+  function gen() {
+    resetDoc(); $('gen').textContent = 'Generating…'; $('gen').disabled = true;
+    void fast.offsetWidth; fast.style.transition = reduce ? 'none' : 'width 4.2s linear'; fast.style.width = '2.1%';
+    const total = 292, dur = reduce ? 0 : 4200, t = performance.now();
+    (function tick(now) { const k = dur ? Math.min(1, (now - t) / dur) : 1, s = Math.round(total * k); clock.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); if (k < 1) requestAnimationFrame(tick); })(t);
+    const lines = sel => doc.querySelectorAll(sel).forEach(l => l.style.width = l.dataset.w + '%');
+    const plan = [
+      () => { steps[0].className = 'run'; },
+      () => { steps[0].className = 'ok'; steps[1].className = 'run'; doc.classList.add('s1'); },
+      () => { steps[1].className = 'ok'; steps[2].className = 'run'; doc.classList.add('s2'); },
+      () => { steps[2].className = 'ok'; steps[3].className = 'run'; doc.classList.add('s3'); },
+      () => { steps[3].className = 'ok'; steps[4].className = 'run'; doc.classList.add('s4', 's5'); },
+      () => { steps[4].className = 'ok'; lines('.ln'); $('gen').disabled = false; $('gen').textContent = '↻ Generate again'; }
+    ];
+    plan.forEach((f, i) => gt.push(setTimeout(() => { f(); doc.querySelectorAll('.ln').forEach((l, j) => { if (j < [0, 2, 4, 5, 6, 6][i]) l.style.width = l.dataset.w + '%'; }); }, reduce ? 0 : i * 840)));
+  }
+  $('gen').onclick = gen;
+})();
+</script>
+</body>
+</html>
