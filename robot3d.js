@@ -1,7 +1,7 @@
 // 3D model of the COGS 300 robot, recreated from the team's photo and videos.
 // Units are roughly centimetres. The robot faces +x.
 import * as THREE from 'three';
-import { OrbitControls } from './lib/OrbitControls.js';
+import { OrbitControls } from './OrbitControls.js';
 
 const host = document.getElementById('bot3d');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
