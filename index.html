@@ -131,9 +131,15 @@ section { padding: 64px 0; }
 .sec-head .note { color: var(--muted); font-size: 14.5px; }
 
 /* Work */
-.work { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; padding: 6px 2px 18px; margin: -6px -2px 0; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
-.work > .proj { flex: 0 0 min(440px, 84%); scroll-snap-align: start; }
-.work::-webkit-scrollbar { height: 6px; } .work::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+.work { position: relative; overflow: hidden; margin: 0 calc(50% - 50vw); padding: 8px 0 4px; transition: height .4s; touch-action: pan-y; }
+.work > .proj { position: absolute; top: 8px; left: 50%; width: min(520px, 78%); margin-left: calc(min(520px, 78%) / -2); transition: transform .55s cubic-bezier(.2,.8,.2,1), opacity .55s, border-color .25s, box-shadow .25s; }
+.work > .proj.side { cursor: pointer; }
+.work > .proj:not(.side) { box-shadow: 0 30px 60px -30px rgba(28,26,23,.45); }
+.work > .proj.side:hover { border-color: var(--accent); }
+.work > .proj.side * { pointer-events: none; }
+.spot-dots { display: flex; justify-content: center; gap: 8px; margin-top: -14px; }
+.spot-dots button { width: 8px; height: 8px; padding: 0; border-radius: 50%; border: 0; background: var(--line); cursor: pointer; transition: width .3s, background .3s; }
+.spot-dots button.on { width: 24px; border-radius: 4px; background: var(--accent); }
 .proj .preview video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; display: block; }
 .scroll-btns { display: flex; align-items: center; gap: 8px; }
 .scroll-btns button { width: 40px; height: 40px; border-radius: 50%; border: var(--bw) solid var(--line); background: var(--panel); color: var(--ink); font: 500 17px var(--body); cursor: pointer; transition: border-color .2s, opacity .2s; }
@@ -278,9 +284,9 @@ footer.wrap { padding: 32px 24px calc(64px + env(safe-area-inset-bottom)); displ
     <div class="wrap">
       <div class="sec-head rv">
         <div class="l"><span class="eyebrow">Selected work</span><h2>Projects</h2></div>
-        <div class="scroll-btns"><span class="note" style="margin-right:6px">Scroll for more</span><button type="button" id="work-prev" aria-label="Previous project">←</button><button type="button" id="work-next" aria-label="Next project">→</button></div>
+        <div class="scroll-btns"><span class="note" id="work-count" style="margin-right:6px">01 / 03</span><button type="button" id="work-prev" aria-label="Previous project">←</button><button type="button" id="work-next" aria-label="Next project">→</button></div>
       </div>
-      <div class="work" id="work-row">
+      <div class="work" id="work-row" aria-roledescription="carousel">
         <a class="proj rv" id="p-amxl" href="amxl.html">
           <div class="preview" aria-hidden="true">
             <div class="rows">
@@ -327,6 +333,7 @@ footer.wrap { padding: 32px 24px calc(64px + env(safe-area-inset-bottom)); displ
           </div>
         </a>
       </div>
+      <div class="spot-dots" id="work-dots"></div>
     </div>
   </section>
 
@@ -533,15 +540,42 @@ footer.wrap { padding: 32px 24px calc(64px + env(safe-area-inset-bottom)); displ
   requestAnimationFrame(frame);
 })();
 
-  // Project row: arrow buttons scroll one card at a time
+  // Projects: center spotlight. The active card sits in front; the others peek out at the sides.
   (function () {
     const row = document.getElementById('work-row'), prev = document.getElementById('work-prev'), next = document.getElementById('work-next');
+    const count = document.getElementById('work-count'), dotsBox = document.getElementById('work-dots');
     if (!row || !prev || !next) return;
-    const stepW = () => { const c = row.querySelector('.proj'); return c ? c.getBoundingClientRect().width + 20 : 400; };
-    const upd = () => { prev.disabled = row.scrollLeft < 4; next.disabled = row.scrollLeft + row.clientWidth >= row.scrollWidth - 4; };
-    prev.addEventListener('click', () => row.scrollBy({ left: -stepW() }));
-    next.addEventListener('click', () => row.scrollBy({ left: stepW() }));
-    row.addEventListener('scroll', upd, { passive: true }); addEventListener('resize', upd); upd();
+    const cards = [...row.querySelectorAll('.proj')], n = cards.length; let i = 0;
+    const dots = cards.map((c, k) => { const d = document.createElement('button'); d.type = 'button'; d.setAttribute('aria-label', 'Show project ' + (k + 1)); d.addEventListener('click', () => go(k)); dotsBox.appendChild(d); return d; });
+    function layout() {
+      const W = row.clientWidth, cw = cards[0].getBoundingClientRect().width / (cards[0]._s || 1);
+      const shift = Math.min(cw * .78, W / 2 - 20);
+      let h = 0;
+      cards.forEach((c, k) => {
+        let off = k - i; if (off > n / 2) off -= n; if (off < -n / 2) off += n;
+        const s = off === 0 ? 1 : .86; c._s = s;
+        c.style.transform = `translateX(${off * shift}px) scale(${s})`;
+        c.style.opacity = Math.abs(off) <= 1 ? 1 : 0;
+        c.style.zIndex = off === 0 ? 3 : 2 - Math.abs(off);
+        c.classList.toggle('side', off !== 0);
+        c.setAttribute('aria-hidden', off !== 0); c.tabIndex = off === 0 ? 0 : -1;
+        h = Math.max(h, c.offsetHeight);
+      });
+      row.style.height = (h + 56) + 'px';
+      dots.forEach((d, k) => d.classList.toggle('on', k === i));
+      if (count) count.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(n).padStart(2, '0');
+    }
+    function go(k) { i = (k + n) % n; layout(); }
+    prev.addEventListener('click', () => go(i - 1));
+    next.addEventListener('click', () => go(i + 1));
+    cards.forEach((c, k) => c.addEventListener('click', e => { if (swiped) { e.preventDefault(); swiped = false; return; } if (k !== i) { e.preventDefault(); go(k); } }));
+    row.addEventListener('keydown', e => { if (e.key === 'ArrowRight') go(i + 1); if (e.key === 'ArrowLeft') go(i - 1); });
+    // swipe on touch screens
+    let x0 = null, swiped = false;
+    row.addEventListener('pointerdown', e => { x0 = e.clientX; });
+    row.addEventListener('pointerup', e => { if (x0 === null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 50) { swiped = true; go(i + (dx < 0 ? 1 : -1)); } });
+    addEventListener('resize', layout); addEventListener('load', layout);
+    layout();
   })();
 </script>
 </body>
